@@ -1,69 +1,142 @@
-import Image from "next/image";
+import { createClient } from '@/lib/supabase-server'
+import { createCheckoutSession } from '@/app/actions/stripe'
+import { CreatePromptModal } from '@/components/CreatePromptModal'
+import { PromptCard } from '@/components/PromptCard'
+import { LogoutButton } from '@/components/LogoutButton'
+import Link from 'next/link'
 
-export default function Home() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ success?: string; canceled?: string }>
+}) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  let profile = null
+  let prompts: any[] = []
+
+  if (user) {
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+    profile = profileData
+
+    const { data: promptsData } = await supabase
+      .from('prompts')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+
+    prompts = promptsData || []
+  }
+
+  const params = await searchParams
+  const isPro = profile?.is_pro ?? false
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="min-h-screen bg-slate-950 text-slate-100 p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Navbar */}
+        <header className="flex justify-between items-center mb-8 bg-slate-900 border border-slate-800 rounded-xl p-4 px-6 shadow-md">
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+              Promptify
+            </h1>
+            <span
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                isPro
+                  ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30'
+                  : 'bg-slate-800 text-slate-400 border-slate-700'
+              }`}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              {isPro ? 'PLANO PRO ✨' : 'PLANO GRATUITO'}
+            </span>
+          </div>
+
+         <div className="flex items-center gap-4 text-xs">
+            {user ? (
+              <>
+                <span className="text-slate-400">{user.email}</span>
+                {!isPro && (
+                  <form action={createCheckoutSession}>
+                    <button
+                      type="submit"
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      Upgradar para PRO (9.99€)
+                    </button>
+                  </form>
+                )}
+                {/* Botão de Logout adicionado aqui */}
+                <LogoutButton />
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg transition-colors"
+              >
+                Iniciar Sessão
+              </Link>
+            )}
+          </div>
+        </header>
+
+        {params.success && (
+          <div className="bg-emerald-500/10 border border-emerald-500/50 text-emerald-400 text-sm p-4 rounded-xl mb-6 text-center">
+            🎉 Pagamento concluído com sucesso! A tua conta PRO foi ativada.
+          </div>
+        )}
+
+        {!user ? (
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center max-w-md mx-auto my-12">
+            <h2 className="text-2xl font-bold mb-3">Organiza os teus Prompts de IA</h2>
+            <p className="text-slate-400 text-sm mb-6">
+              Guarda, categoriza e copia com 1 clique os teus melhores prompts para
+              ChatGPT, Claude e Midjourney.
+            </p>
+            <Link
+              href="/login"
+              className="inline-block w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 px-6 rounded-xl transition-colors"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+              Começar Grátis
+            </Link>
+          </div>
+        ) : (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-white">Os Meus Prompts</h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  {prompts.length} {prompts.length === 1 ? 'prompt guardado' : 'prompts guardados'}
+                  {!isPro && ` (Limite de 3 no plano Gratuito)`}
+                </p>
+              </div>
+
+              <CreatePromptModal isPro={isPro} promptCount={prompts.length} />
+            </div>
+
+            {prompts.length === 0 ? (
+              <div className="bg-slate-900/50 border border-dashed border-slate-800 rounded-2xl p-12 text-center">
+                <p className="text-slate-400 text-sm mb-2">Ainda não guardaste nenhum prompt.</p>
+                <p className="text-slate-500 text-xs">
+                  Clica no botão acima para adicionar o teu primeiro prompt!
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {prompts.map((p) => (
+                  <PromptCard key={p.id} prompt={p} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </main>
+  )
 }
