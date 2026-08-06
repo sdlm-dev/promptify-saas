@@ -4,6 +4,7 @@ import { createCustomerPortalSession } from '@/app/actions/stripe-portal'
 import { CreatePromptModal } from '@/components/CreatePromptModal'
 import { PromptCard } from '@/components/PromptCard'
 import { LogoutButton } from '@/components/LogoutButton'
+import { PromptSearch } from '@/components/PromptSearch'
 import Link from 'next/link'
 
 export default async function HomePage({
@@ -120,7 +121,7 @@ export default async function HomePage({
             </Link>
           </div>
         ) : (
-          <div>
+         <div>
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-xl font-bold text-white">Os Meus Prompts</h2>
@@ -141,11 +142,8 @@ export default async function HomePage({
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {prompts.map((p) => (
-                  <PromptCard key={p.id} prompt={p} />
-                ))}
-              </div>
+              /* Subscrição do bloco antigo pelo componente de pesquisa/grelha */
+              <PromptSearch prompts={prompts} />
             )}
           </div>
         )}
