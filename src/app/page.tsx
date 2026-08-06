@@ -143,7 +143,7 @@ export default async function HomePage({
               </div>
             ) : (
               /* Subscrição do bloco antigo pelo componente de pesquisa/grelha */
-              <PromptSearch prompts={prompts} />
+              <PromptSearch prompts={prompts} isPro={isPro}/>
             )}
           </div>
         )}
