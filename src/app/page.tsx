@@ -5,6 +5,7 @@ import { CreatePromptModal } from '@/components/CreatePromptModal'
 import { PromptCard } from '@/components/PromptCard'
 import { LogoutButton } from '@/components/LogoutButton'
 import { PromptSearch } from '@/components/PromptSearch'
+import { ExportPromptsButton } from '@/components/ExportPromptsButton'
 import Link from 'next/link'
 
 export default async function HomePage({
@@ -130,9 +131,11 @@ export default async function HomePage({
                   {!isPro && ` (Limite de 3 no plano Gratuito)`}
                 </p>
               </div>
-
-              <CreatePromptModal isPro={isPro} promptCount={prompts.length} />
-            </div>
+              <div className="flex items-center gap-3">
+                <ExportPromptsButton prompts={prompts} />
+                <CreatePromptModal isPro={isPro} promptCount={prompts.length} />
+              </div>
+              </div>
 
             {prompts.length === 0 ? (
               <div className="bg-slate-900/50 border border-dashed border-slate-800 rounded-2xl p-12 text-center">
