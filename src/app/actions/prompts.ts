@@ -123,3 +123,35 @@ export async function updatePrompt(id: string, formData: FormData) {
 
   revalidatePath('/')
 }
+
+export async function toggleFavoritePrompt(id: string, newFavoriteState: boolean) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Utilizador não autenticado')
+  }
+
+  const { data, error } = await supabase
+    .from('prompts')
+    .update({ is_favorite: newFavoriteState })
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .select()
+
+  if (error) {
+    console.error('❌ Erro no Supabase:', error)
+    throw new Error(`Erro do Supabase: ${error.message}`)
+  }
+
+  // Se o data vier vazio, significa que o RLS bloqueou ou o ID do user não coincide
+  if (!data || data.length === 0) {
+    console.error('❌ Nenhum registo foi alterado. Verifica a política de UPDATE no RLS do Supabase.')
+    throw new Error('Não foi possível atualizar o favorito (Permissão negada ou prompt não encontrado).')
+  }
+
+  revalidatePath('/')
+}

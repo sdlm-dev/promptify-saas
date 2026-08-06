@@ -10,11 +10,13 @@ interface Prompt {
   tags: string[] | null
   created_at: string
   user_id: string
+  is_favorite?: boolean
 }
 
 export function PromptSearch({ prompts, isPro = false }: { prompts: Prompt[], isPro?: boolean }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false)
 
   // Extrair todas as tags únicas de todos os prompts
   const allTags = useMemo(() => {
@@ -26,7 +28,7 @@ export function PromptSearch({ prompts, isPro = false }: { prompts: Prompt[], is
   }, [prompts])
 
   // Filtrar os prompts com base na pesquisa e na tag selecionada
-  const filteredPrompts = useMemo(() => {
+const filteredPrompts = useMemo(() => {
     return prompts.filter((prompt) => {
       const matchesSearch =
         prompt.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -36,9 +38,11 @@ export function PromptSearch({ prompts, isPro = false }: { prompts: Prompt[], is
         ? prompt.tags?.some((t) => t.trim().toLowerCase() === selectedTag.toLowerCase())
         : true
 
-      return matchesSearch && matchesTag
+      const matchesFavorite = showOnlyFavorites ? prompt.is_favorite : true
+
+      return matchesSearch && matchesTag && matchesFavorite
     })
-  }, [prompts, searchTerm, selectedTag])
+  }, [prompts, searchTerm, selectedTag, showOnlyFavorites])
 
   return (
     <div className="space-y-6">
@@ -64,31 +68,49 @@ export function PromptSearch({ prompts, isPro = false }: { prompts: Prompt[], is
 
         {/* Chips de Tags */}
         {allTags.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-2">
+        <div className="flex flex-wrap justify-center gap-2">
             <button
-              onClick={() => setSelectedTag(null)}
-              className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                selectedTag === null
-                  ? 'bg-indigo-600 border-indigo-500 text-white font-medium'
-                  : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
-              }`}
+            onClick={() => {
+                setSelectedTag(null)
+                setShowOnlyFavorites(false)
+            }}
+            className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                selectedTag === null && !showOnlyFavorites
+                ? 'bg-indigo-600 border-indigo-500 text-white font-medium'
+                : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+            }`}
             >
-              Todas
+            Todas
             </button>
+
+            <button
+            onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+            className={`text-xs px-3 py-1 rounded-full border transition-colors flex items-center gap-1 ${
+                showOnlyFavorites
+                ? 'bg-amber-500 border-amber-400 text-slate-950 font-semibold'
+                : 'bg-slate-900/60 border-slate-800 text-amber-400 hover:border-slate-700'
+            }`}
+            >
+            ⭐ Favoritos
+            </button>
+
             {allTags.map((tag) => (
-              <button
+            <button
                 key={tag}
-                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                onClick={() => {
+                setShowOnlyFavorites(false)
+                setSelectedTag(selectedTag === tag ? null : tag)
+                }}
                 className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                  selectedTag === tag
+                selectedTag === tag
                     ? 'bg-indigo-600 border-indigo-500 text-white font-medium'
                     : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
                 }`}
-              >
+            >
                 #{tag}
-              </button>
+            </button>
             ))}
-          </div>
+        </div>
         )}
       </div>
 
@@ -101,6 +123,7 @@ export function PromptSearch({ prompts, isPro = false }: { prompts: Prompt[], is
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredPrompts.map((p) => (
                 <PromptCard key={p.id} prompt={p} isPro={isPro} />
+                              
             ))}
         </div>
       )}

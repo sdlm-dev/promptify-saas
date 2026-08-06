@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { deletePrompt } from '@/app/actions/prompts'
+import { useState, useEffect } from 'react'
+import { deletePrompt, toggleFavoritePrompt } from '@/app/actions/prompts'
 import { EditPromptModal } from '@/components/EditPromptModal'
 
 interface Prompt {
@@ -10,6 +10,7 @@ interface Prompt {
   content: string
   tags: string[] | null
   created_at: string
+  is_favorite?: boolean
 }
 
 export function PromptCard({
@@ -21,6 +22,24 @@ export function PromptCard({
 }) {
   const [copied, setCopied] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(prompt.is_favorite || false)
+
+  // Sincroniza o estado local sempre que as props do prompt mudarem (ex: ao filtrar)
+ useEffect(() => {
+    setIsFavorite(prompt.is_favorite || false)
+  }, [prompt.is_favorite])
+
+  const handleToggleFavorite = async () => {
+    const nextState = !isFavorite
+    setIsFavorite(nextState)
+
+    try {
+      // Passamos diretamente o nextState (o novo valor pretendido)
+      await toggleFavoritePrompt(prompt.id, nextState)
+    } catch (err) {
+      setIsFavorite(isFavorite) // Reverte estado se falhar
+    }
+  }
 
   const handleCopy = () => {
     navigator.clipboard.writeText(prompt.content)
@@ -45,16 +64,24 @@ export function PromptCard({
       <div>
         <div className="flex justify-between items-start gap-2 mb-2">
           <h3 className="font-semibold text-slate-100 text-base">{prompt.title}</h3>
-          
-          {/* Ações: Copiar, Editar e Apagar */}
+
+          {/* Ações: Favorito, Copiar, Editar e Apagar */}
           <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={handleToggleFavorite}
+              className="text-sm p-1 hover:scale-110 transition-transform"
+              title={isFavorite ? 'Remover dos Favoritos' : 'Marcar como Favorito'}
+            >
+              {isFavorite ? '⭐' : '☆'}
+            </button>
+
             <button
               onClick={handleCopy}
               className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2 py-1 rounded transition-colors"
             >
               {copied ? '✓ Copiado!' : '📋 Copiar'}
             </button>
-            
+
             <EditPromptModal prompt={prompt} isPro={isPro} />
 
             <button
