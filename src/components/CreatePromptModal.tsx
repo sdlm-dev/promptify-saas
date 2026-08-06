@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createPrompt } from '@/app/actions/prompts'
+import { optimizePromptWithAI } from '@/app/actions/ai'
 
 export function CreatePromptModal({
   isPro,
@@ -13,6 +14,8 @@ export function CreatePromptModal({
   const [isOpen, setIsOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [optimizing, setOptimizing] = useState(false)
+  const [content, setContent] = useState('')
 
   const isLimitReached = !isPro && promptCount >= 3
 
@@ -23,10 +26,30 @@ export function CreatePromptModal({
     try {
       await createPrompt(formData)
       setIsOpen(false)
+      setContent('')
     } catch (err: any) {
       setError(err.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleOptimize() {
+    if (!content.trim()) {
+      setError('Escreve uma ideia inicial no campo do conteúdo antes de otimizar.')
+      return
+    }
+
+    setOptimizing(true)
+    setError(null)
+
+    try {
+      const optimizedText = await optimizePromptWithAI(content)
+      setContent(optimizedText)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setOptimizing(false)
     }
   }
 
@@ -81,15 +104,29 @@ export function CreatePromptModal({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
-                  Conteúdo do Prompt
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-xs font-medium text-slate-400">
+                    Conteúdo do Prompt
+                  </label>
+                  {isPro && (
+                    <button
+                      type="button"
+                      onClick={handleOptimize}
+                      disabled={optimizing}
+                      className="text-xs bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded transition-colors flex items-center gap-1 disabled:opacity-50"
+                    >
+                      {optimizing ? '✨ Otimizando...' : '✨ Otimizar com IA'}
+                    </button>
+                  )}
+                </div>
                 <textarea
                   name="content"
                   required
                   rows={5}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
                   placeholder="Atua como um programador sénior e gera..."
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 resize-none"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 resize-none font-mono text-xs"
                 />
               </div>
 

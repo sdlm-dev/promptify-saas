@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase-server'
 import { createCheckoutSession } from '@/app/actions/stripe'
+import { createCustomerPortalSession } from '@/app/actions/stripe-portal'
 import { CreatePromptModal } from '@/components/CreatePromptModal'
 import { PromptCard } from '@/components/PromptCard'
 import { LogoutButton } from '@/components/LogoutButton'
@@ -58,11 +59,13 @@ export default async function HomePage({
             </span>
           </div>
 
-         <div className="flex items-center gap-4 text-xs">
+          <div className="flex items-center gap-4 text-xs">
             {user ? (
               <>
                 <span className="text-slate-400">{user.email}</span>
-                {!isPro && (
+                
+                {/* Se NÃO for PRO: Botão de Upgrade */}
+                {!isPro ? (
                   <form action={createCheckoutSession}>
                     <button
                       type="submit"
@@ -71,8 +74,18 @@ export default async function HomePage({
                       Upgradar para PRO (9.99€)
                     </button>
                   </form>
+                ) : (
+                  /* Se FOR PRO: Botão para abrir o Portal de Gestão */
+                  <form action={createCustomerPortalSession}>
+                    <button
+                      type="submit"
+                      className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                    >
+                      <span>⚙️ Gerir Subscrição</span>
+                    </button>
+                  </form>
                 )}
-                {/* Botão de Logout adicionado aqui */}
+
                 <LogoutButton />
               </>
             ) : (
