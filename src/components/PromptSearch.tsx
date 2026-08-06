@@ -12,7 +12,7 @@ interface Prompt {
   user_id: string
 }
 
-export function PromptSearch({ prompts }: { prompts: Prompt[] }) {
+export function PromptSearch({ prompts, isPro = false }: { prompts: Prompt[], isPro?: boolean }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
 
@@ -99,9 +99,9 @@ export function PromptSearch({ prompts }: { prompts: Prompt[] }) {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredPrompts.map((p) => (
-            <PromptCard key={p.id} prompt={p} />
-          ))}
+            {filteredPrompts.map((p) => (
+                <PromptCard key={p.id} prompt={p} isPro={isPro} />
+            ))}
         </div>
       )}
     </div>

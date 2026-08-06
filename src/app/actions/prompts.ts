@@ -78,3 +78,48 @@ export async function deletePrompt(id: string) {
 
   revalidatePath('/')
 }
+
+export async function updatePrompt(id: string, formData: FormData) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Utilizador não autenticado')
+  }
+
+  const title = formData.get('title') as string
+  const content = formData.get('content') as string
+  const tagsRaw = formData.get('tags') as string
+
+  if (!title || !content) {
+    throw new Error('Título e conteúdo são obrigatórios.')
+  }
+
+  const tags = tagsRaw
+    ? tagsRaw
+        .split(',')
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0)
+    : []
+
+  // Atualizar o prompt (o RLS do Supabase garante que o utilizador só edita o que lhe pertence)
+  const { error } = await supabase
+    .from('prompts')
+    .update({
+      title,
+      content,
+      tags,
+    })
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) {
+    console.error('Erro ao atualizar prompt:', error)
+    throw new Error('Falha ao atualizar o prompt.')
+  }
+
+  revalidatePath('/')
+}
