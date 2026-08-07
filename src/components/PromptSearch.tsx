@@ -13,12 +13,17 @@ interface Prompt {
   is_favorite?: boolean
 }
 
-export function PromptSearch({ prompts, isPro = false }: { prompts: Prompt[], isPro?: boolean }) {
+export function PromptSearch({
+  prompts,
+  isPro = false,
+}: {
+  prompts: Prompt[]
+  isPro?: boolean
+}) {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false)
 
-  // Extrair todas as tags únicas de todos os prompts
   const allTags = useMemo(() => {
     const tagsSet = new Set<string>()
     prompts.forEach((prompt) => {
@@ -27,8 +32,7 @@ export function PromptSearch({ prompts, isPro = false }: { prompts: Prompt[], is
     return Array.from(tagsSet)
   }, [prompts])
 
-  // Filtrar os prompts com base na pesquisa e na tag selecionada
-const filteredPrompts = useMemo(() => {
+  const filteredPrompts = useMemo(() => {
     return prompts.filter((prompt) => {
       const matchesSearch =
         prompt.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -46,7 +50,7 @@ const filteredPrompts = useMemo(() => {
 
   return (
     <div className="space-y-6">
-      {/* Barra de Pesquisa e Filtros de Tags */}
+      {/* Barra de Pesquisa */}
       <div className="space-y-4 max-w-2xl mx-auto">
         <div className="relative">
           <input
@@ -54,77 +58,76 @@ const filteredPrompts = useMemo(() => {
             placeholder="🔍 Pesquisar por título ou conteúdo..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors shadow-lg"
+            className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors shadow-sm"
           />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-white"
             >
               Limpar
             </button>
           )}
         </div>
 
-        {/* Chips de Tags */}
-        {allTags.length > 0 && (
+        {/* Chips de Tags e Favoritos */}
         <div className="flex flex-wrap justify-center gap-2">
-            <button
+          <button
             onClick={() => {
-                setSelectedTag(null)
-                setShowOnlyFavorites(false)
+              setSelectedTag(null)
+              setShowOnlyFavorites(false)
             }}
             className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                selectedTag === null && !showOnlyFavorites
+              selectedTag === null && !showOnlyFavorites
                 ? 'bg-indigo-600 border-indigo-500 text-white font-medium'
-                : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                : 'bg-white dark:bg-slate-900/60 border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-700'
             }`}
-            >
+          >
             Todas
-            </button>
+          </button>
 
-            <button
+          <button
             onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
             className={`text-xs px-3 py-1 rounded-full border transition-colors flex items-center gap-1 ${
-                showOnlyFavorites
+              showOnlyFavorites
                 ? 'bg-amber-500 border-amber-400 text-slate-950 font-semibold'
-                : 'bg-slate-900/60 border-slate-800 text-amber-400 hover:border-slate-700'
+                : 'bg-white dark:bg-slate-900/60 border-slate-300 dark:border-slate-800 text-amber-600 dark:text-amber-400 hover:border-slate-400 dark:hover:border-slate-700'
             }`}
-            >
+          >
             ⭐ Favoritos
-            </button>
+          </button>
 
-            {allTags.map((tag) => (
+          {allTags.map((tag) => (
             <button
-                key={tag}
-                onClick={() => {
+              key={tag}
+              onClick={() => {
                 setShowOnlyFavorites(false)
                 setSelectedTag(selectedTag === tag ? null : tag)
-                }}
-                className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+              }}
+              className={`text-xs px-3 py-1 rounded-full border transition-colors ${
                 selectedTag === tag
-                    ? 'bg-indigo-600 border-indigo-500 text-white font-medium'
-                    : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
-                }`}
+                  ? 'bg-indigo-600 border-indigo-500 text-white font-medium'
+                  : 'bg-white dark:bg-slate-900/60 border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-700'
+              }`}
             >
-                #{tag}
+              #{tag}
             </button>
-            ))}
+          ))}
         </div>
-        )}
       </div>
 
-      {/* Resultado da Grelha */}
+      {/* Resultados */}
       {filteredPrompts.length === 0 ? (
-        <div className="bg-slate-900/50 border border-dashed border-slate-800 rounded-2xl p-8 text-center">
-          <p className="text-slate-400 text-sm">Nenhum prompt encontrado com esses filtros.</p>
+        <div className="bg-white/50 dark:bg-slate-900/50 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl p-8 text-center">
+          <p className="text-slate-500 dark:text-slate-400 text-sm">
+            Nenhum prompt encontrado com esses filtros.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredPrompts.map((p) => (
-                <PromptCard key={p.id} prompt={p} isPro={isPro} />
-                              
-            ))}
+          {filteredPrompts.map((p) => (
+            <PromptCard key={p.id} prompt={p} isPro={isPro} />
+          ))}
         </div>
       )}
     </div>

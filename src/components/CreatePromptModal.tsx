@@ -56,7 +56,7 @@ export function CreatePromptModal({
   return (
     <div className="mb-8">
       {isLimitReached ? (
-        <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-300 text-sm text-center">
+        <div className="p-4 bg-black border border-amber-500/30 rounded-lg text-amber-300 text-sm text-center">
           ⚠️ Atingiste o limite de 3/3 prompts do plano Gratuito.{' '}
           <span className="font-semibold text-amber-200">
             Atualiza para PRO para criar prompts ilimitados.

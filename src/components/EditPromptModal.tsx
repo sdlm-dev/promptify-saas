@@ -62,22 +62,24 @@ export function EditPromptModal({
 
   return (
     <>
-      <button
+  <button
         onClick={() => setIsOpen(true)}
-        className="text-xs text-slate-400 hover:text-slate-200 p-1 rounded transition-colors"
+        className="text-xs text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1 rounded transition-colors"
         title="Editar Prompt"
       >
         ✏️ Editar
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 text-left">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 max-w-lg w-full shadow-2xl">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold text-white">Editar Prompt</h2>
+   <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-base">
+                Editar Prompt
+              </h3>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm font-bold"
               >
                 ✕
               </button>
@@ -91,22 +93,21 @@ export function EditPromptModal({
 
             <form action={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
-                  Título
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                    Título
                 </label>
                 <input
                   name="title"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-                />
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-indigo-500" />
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <label className="block text-xs font-medium text-slate-400">
-                    Conteúdo do Prompt
+                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                      Conteúdo do Prompt
                   </label>
                   {isPro && (
                     <button
@@ -125,36 +126,32 @@ export function EditPromptModal({
                   rows={5}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 resize-none font-mono text-xs"
-                />
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 font-mono focus:outline-none focus:border-indigo-500" />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
-                  Tags (separadas por vírgulas)
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                    Tags (separadas por vírgulas)
                 </label>
                 <input
                   name="tags"
                   value={tags}
                   onChange={(e) => setTags(e.target.value)}
                   placeholder="React, Next.js, Frontend"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-                />
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-indigo-500" />
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="px-4 py-2 text-xs text-slate-400 hover:text-white"
-                >
+                  className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"                >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
-                >
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-50"                >
                   {loading ? 'A guardar...' : 'Guardar Alterações'}
                 </button>
               </div>

@@ -24,8 +24,7 @@ export function PromptCard({
   const [deleting, setDeleting] = useState(false)
   const [isFavorite, setIsFavorite] = useState(prompt.is_favorite || false)
 
-  // Sincroniza o estado local sempre que as props do prompt mudarem (ex: ao filtrar)
- useEffect(() => {
+  useEffect(() => {
     setIsFavorite(prompt.is_favorite || false)
   }, [prompt.is_favorite])
 
@@ -34,10 +33,9 @@ export function PromptCard({
     setIsFavorite(nextState)
 
     try {
-      // Passamos diretamente o nextState (o novo valor pretendido)
       await toggleFavoritePrompt(prompt.id, nextState)
     } catch (err) {
-      setIsFavorite(isFavorite) // Reverte estado se falhar
+      setIsFavorite(isFavorite)
     }
   }
 
@@ -60,12 +58,13 @@ export function PromptCard({
   }
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between hover:border-slate-700 transition-colors shadow-sm">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm">
       <div>
         <div className="flex justify-between items-start gap-2 mb-2">
-          <h3 className="font-semibold text-slate-100 text-base">{prompt.title}</h3>
+          <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-base">
+            {prompt.title}
+          </h3>
 
-          {/* Ações: Favorito, Copiar, Editar e Apagar */}
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={handleToggleFavorite}
@@ -77,7 +76,7 @@ export function PromptCard({
 
             <button
               onClick={handleCopy}
-              className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2 py-1 rounded transition-colors"
+              className="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 px-2 py-1 rounded transition-colors"
             >
               {copied ? '✓ Copiado!' : '📋 Copiar'}
             </button>
@@ -87,7 +86,7 @@ export function PromptCard({
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="text-xs text-slate-500 hover:text-red-400 p-1 rounded transition-colors disabled:opacity-50"
+              className="text-xs text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 p-1 rounded transition-colors disabled:opacity-50"
               title="Apagar Prompt"
             >
               🗑️
@@ -95,7 +94,7 @@ export function PromptCard({
           </div>
         </div>
 
-        <p className="text-slate-400 text-xs font-mono bg-slate-950/60 p-3 rounded-lg border border-slate-800/60 whitespace-pre-wrap break-words mb-3">
+        <p className="text-slate-700 dark:text-slate-400 text-xs font-mono bg-slate-50 dark:bg-slate-950/60 p-3 rounded-lg border border-slate-200 dark:border-slate-800/60 whitespace-pre-wrap break-words mb-3">
           {prompt.content}
         </p>
       </div>
@@ -105,7 +104,7 @@ export function PromptCard({
           {prompt.tags.map((tag, index) => (
             <span
               key={index}
-              className="text-[10px] bg-indigo-950/40 text-indigo-300 border border-indigo-900/50 px-2 py-0.5 rounded-md"
+              className="text-[10px] bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900/50 px-2 py-0.5 rounded-md"
             >
               #{tag.trim()}
             </span>
